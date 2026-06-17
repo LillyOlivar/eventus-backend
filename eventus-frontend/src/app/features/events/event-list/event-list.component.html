@@ -1,0 +1,81 @@
+<!-- src/app/features/events/event-list/event-list.component.html -->
+<div class="page-container">
+  <div class="page-header">
+    <h1>Eventos Académicos</h1>
+    <p>Descubre seminarios, talleres y conferencias de la Universidad del Cauca</p>
+    @if (authService.isAdmin()) {
+      <a routerLink="/admin/events/new" class="btn-primary">+ Crear evento</a>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <select [(ngModel)]="selectedCategory" (change)="onFilter()">
+      <option value="">Todas las categorías</option>
+      @for (cat of categories; track cat) {
+        <option [value]="cat">{{ cat }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="selectedStatus" (change)="onFilter()">
+      @for (s of statuses; track s.value) {
+        <option [value]="s.value">{{ s.label }}</option>
+      }
+    </select>
+
+    @if (selectedCategory || selectedStatus) {
+      <button class="btn-outline" (click)="clearFilters()">Limpiar filtros</button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando eventos...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+
+  <!-- Events grid -->
+  @if (!loading && !error) {
+    @if (events.length === 0) {
+      <div class="empty-state">
+        <p>No hay eventos disponibles con los filtros seleccionados.</p>
+      </div>
+    } @else {
+      <div class="events-grid">
+        @for (event of events; track event.id) {
+          <div class="event-card" [routerLink]="['/events', event.id]">
+            @if (event.imageUrl) {
+              <img [src]="event.imageUrl" [alt]="event.title" class="event-img" />
+            } @else {
+              <div class="event-img-placeholder">
+                <span>{{ event.category[0] }}</span>
+              </div>
+            }
+            <div class="event-body">
+              <div class="event-meta">
+                <span class="badge" [ngClass]="getStatusClass(event.status)">
+                  {{ getStatusLabel(event.status) }}
+                </span>
+                <span class="category-tag">{{ event.category }}</span>
+              </div>
+              <h3>{{ event.title }}</h3>
+              <p class="event-desc">{{ event.description | slice:0:120 }}...</p>
+              <div class="event-details">
+                <span>📍 {{ event.location }}</span>
+                <span>📅 {{ event.startDate | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span>👥 {{ eventsService.getAvailableSpots(event) }} / {{ event.capacity }} cupos</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

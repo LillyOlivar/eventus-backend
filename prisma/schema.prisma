@@ -1,0 +1,68 @@
+// prisma/schema.prisma
+// Eventus - Plataforma de Gestión de Eventos Académicos
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PARTICIPANT
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  FINISHED
+  CANCELLED
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  password     String
+  firstName    String
+  lastName     String
+  role         Role           @default(PARTICIPANT)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  registrations Registration[]
+
+  @@map("users")
+}
+
+model Event {
+  id            Int            @id @default(autoincrement())
+  title         String
+  description   String
+  location      String
+  startDate     DateTime
+  endDate       DateTime
+  capacity      Int
+  status        EventStatus    @default(UPCOMING)
+  category      String
+  imageUrl      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  registrations Registration[]
+
+  @@map("events")
+}
+
+model Registration {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  eventId      Int
+  registeredAt DateTime @default(now())
+  attended     Boolean  @default(false)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@map("registrations")
+}

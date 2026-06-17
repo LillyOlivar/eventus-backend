@@ -1,0 +1,88 @@
+<!-- src/app/features/admin/admin-panel/admin-panel.component.html -->
+<div class="page-container">
+  <div class="page-header">
+    <h1>Panel de Administración</h1>
+    <a routerLink="/admin/events/new" class="btn-primary">+ Nuevo evento</a>
+  </div>
+
+  <!-- Stats cards -->
+  @if (stats) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.totalEvents }}</div>
+        <div class="stat-label">Total eventos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.upcomingEvents }}</div>
+        <div class="stat-label">Próximos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.totalUsers }}</div>
+        <div class="stat-label">Usuarios</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.totalRegistrations }}</div>
+        <div class="stat-label">Inscripciones</div>
+      </div>
+    </div>
+
+    <!-- Category breakdown -->
+    <div class="section-card">
+      <h2>Eventos por categoría</h2>
+      <div class="category-list">
+        @for (cat of stats.eventsByCategory; track cat.category) {
+          <div class="category-item">
+            <span>{{ cat.category }}</span>
+            <span class="cat-count">{{ cat._count }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Events management table -->
+  <div class="section-card">
+    <h2>Gestión de eventos</h2>
+    @if (loading) {
+      <div class="loading-state"><div class="spinner"></div></div>
+    }
+    @if (!loading) {
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Categoría</th>
+              <th>Fecha inicio</th>
+              <th>Cupos</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (event of events; track event.id) {
+              <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.category }}</td>
+                <td>{{ event.startDate | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  {{ (event._count?.registrations ?? 0) }} / {{ event.capacity }}
+                </td>
+                <td>
+                  <span class="badge status-{{ event.status.toLowerCase() }}">
+                    {{ getStatusLabel(event.status) }}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <a [routerLink]="['/events', event.id]" class="btn-sm btn-outline">Ver</a>
+                  <a [routerLink]="['/admin/events', event.id, 'edit']" class="btn-sm btn-outline">Editar</a>
+                  <button class="btn-sm btn-danger" (click)="deleteEvent(event.id)">Eliminar</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
