@@ -1,5 +1,5 @@
 // src/users/users.controller.ts
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, UseGuards, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
@@ -21,6 +21,26 @@ export class UsersController {
     return user;
   }
 
+  @Patch('me')
+  @ApiOperation({ summary: 'Actualizar perfil del usuario autenticado' })
+  async updateMe(
+    @GetUser() user: any,
+    @Body() body: { firstName?: string; lastName?: string },
+  ) {
+    return this.prisma.user.update({
+      where: { id: user.id },
+      data: body,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+  }
+
   @Get()
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
@@ -28,8 +48,13 @@ export class UsersController {
   async findAll() {
     return this.prisma.user.findMany({
       select: {
-        id: true, email: true, firstName: true, lastName: true,
-        role: true, createdAt: true,
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        userType: true,
+        createdAt: true,
         _count: { select: { registrations: true } },
       },
     });

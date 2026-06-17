@@ -29,6 +29,7 @@ model User {
   firstName    String
   lastName     String
   role         Role           @default(PARTICIPANT)
+  userType     String         @default("STUDENT")
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   registrations Registration[]

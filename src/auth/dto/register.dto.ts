@@ -1,14 +1,10 @@
 // src/auth/dto/register.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsEmail, IsString, MinLength, MaxLength, Matches,
+  IsEmail, IsString, MinLength, MaxLength, Matches, IsOptional, IsIn,
 } from 'class-validator';
 
 export class RegisterDto {
-  @ApiProperty({ example: 'juan@unicauca.edu.co' })
-  @IsEmail({}, { message: 'Correo electrónico inválido' })
-  email: string;
-
   @ApiProperty({ example: 'Juan' })
   @IsString()
   @MinLength(2)
@@ -20,6 +16,15 @@ export class RegisterDto {
   @MinLength(2)
   @MaxLength(50)
   lastName: string;
+
+  @ApiProperty({ example: 'juan@unicauca.edu.co' })
+  @IsEmail({}, { message: 'Correo electrónico inválido' })
+  email: string;
+
+  @ApiPropertyOptional({ example: 'STUDENT', enum: ['STUDENT', 'TEACHER'] })
+  @IsOptional()
+  @IsIn(['STUDENT', 'TEACHER'])
+  userType?: string;
 
   @ApiProperty({ example: 'Secure@1234' })
   @IsString()

@@ -28,8 +28,12 @@ export class AuthService {
         password: hashed,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        userType: dto.userType || 'STUDENT',
       },
-      select: { id: true, email: true, firstName: true, lastName: true, role: true, createdAt: true },
+      select: {
+        id: true, email: true, firstName: true,
+        lastName: true, role: true, userType: true, createdAt: true,
+      },
     });
 
     const token = this.signToken(user.id, user.email, user.role);
